@@ -1,0 +1,201 @@
+<!-- templates/home.html -->
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ألفية - Изучайте арабские слова из Корана</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+
+.landing {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.hero {
+    padding: 60px 0 40px;
+}
+
+.hero-logo {
+    font-size: 64px;
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--text-primary), var(--primary-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.features {
+    display: grid;
+    gap: 20px;
+    margin: 40px 0;
+}
+
+.feature-card {
+    background: var(--gradient-surface);
+    padding: 24px;
+    border-radius: var(--border-radius);
+    text-align: left;
+}
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    margin-bottom: 16px;
+}
+
+.feature-card h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.feature-card p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.cta-section {
+    margin: 40px 0;
+}
+
+.btn-large {
+    display: inline-block;
+    background: var(--gradient-primary);
+    color: white;
+    padding: 16px 32px;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 18px;
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+}
+
+.btn-large:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.footer {
+    margin-top: 60px;
+    padding: 20px 0;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+    </style>
+</head>
+<body>
+    <!-- Arabic Letters Background -->
+    <div class="arabic-bg">
+        <div class="arabic-letter letter-1">أ</div>
+        <div class="arabic-letter letter-2">ل</div>
+        <div class="arabic-letter letter-3">ف</div>
+        <div class="arabic-letter letter-4">ي</div>
+        <div class="arabic-letter letter-5">ة</div>
+    </div>
+
+    <div class="landing">
+        <div class="hero">
+            <div class="hero-logo">
+                <i class="fas fa-book-quran"></i>
+            </div>
+            <h1>ألفية</h1>
+            <p>Изучайте 1000 самых важных арабских слов из Корана с помощью интерактивных уроков и упражнений</p>
+            
+            {% if user.is_authenticated and user.is_paid %}
+                <a href="{% url 'dashboard' %}" class="btn-large">
+                    <i class="fas fa-rocket"></i>
+                    Перейти в приложение
+                </a>
+            {% else %}
+                <a href="https://t.me/the_alfiya_bot" class="btn-large">
+                    <i class="fas fa-paper-plane"></i>
+                    Начать в Telegram
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <h3>1000 слов Корана</h3>
+                <p>Изучите самые частотные слова, которые покрывают более 85% текста Корана</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <h3>Интерактивное обучение</h3>
+                <p>Карточки, упражнения, тесты и аудио для эффективного запоминания</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Отслеживание прогресса</h3>
+                <p>Детальная статистика и достижения для мотивации</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>PWA приложение</h3>
+                <p>Устанавливайте на смартфон и учитесь оффлайн</p>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2 style="margin-bottom: 20px;">Начните изучение сегодня</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">
+                Присоединяйтесь к тысячам студентов, которые уже начали понимать Коран на арабском
+            </p>
+            
+            {% if not user.is_authenticated or not user.is_paid %}
+                <a href="https://t.me/the_alfiya_bot" class="btn-large">
+                    <i class="fas fa-robot"></i>
+                    Получить доступ через Telegram
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="footer">
+            <p>© 2025 ألفية. Все права защищены.</p>
+            <p>Приложение для изучения арабского языка</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!-- templates/dashboard.html -->
+
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+
+/* В style.css */
+.stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.stat-trend.positive {
+    color: var(--success);
+}
+
+.stat-trend.neutral {
+    color: var(--text-secondary);
+}
+
+.stat-trend i {
+    font-size: 10px;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<header class="header">
+    <div class="user-info">
+        <div class="avatar" id="user-avatar">A</div>
+        <div class="greeting">
+            <h1 id="greeting-text">السلام عليكم!</h1>
+            <p id="user-motivation">Начните обучение</p>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="profile-btn" onclick="openProfile()">
+            <i class="fas fa-user"></i>
+        </button>
+    </div>
+</header>
+
+<!-- Stats Grid -->
+<section class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-main">
+            <div class="stat-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-values">
+                <div class="stat-value" id="learned-words">0</div>
+                <div class="stat-subvalue">из <span id="total-words">1000</span> слов</div>
+            </div>
+        </div>
+        <div class="stat-label">Изучено слов</div>
+        <div class="stat-progress">
+            <div class="stat-progress-bar" id="words-progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-main">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-week"></i>
+            </div>
+            <div class="stat-values">
+                <div class="stat-value" id="today-words">0</div>
+                <div class="stat-subvalue">слова</div>
+            </div>
+        </div>
+        <div class="stat-label">За сегодня</div>
+        <div class="stat-trend" id="weekly-trend">
+            <i class="fas fa-arrow-up"></i>
+            <span id="trend-text">Начните обучение</span>
+        </div>
+    </div>
+</section>
+
+<!-- Blocks Section -->
+<section class="blocks-section">
+    <div class="section-header">
+        <h2 class="section-title">Блоки обучения</h2>
+    </div>
+    <div class="blocks-grid" id="blocks-container">
+        <div class="loading-block">Загрузка блоков...</div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize dashboard when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof initializeDashboard !== 'undefined') {
+            initializeDashboard();
+        } else {
+            console.error('initializeDashboard function not found');
+            // Перезагружаем страницу если скрипт не загрузился
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+    });
+</script>
+{% endblock %}

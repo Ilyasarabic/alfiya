@@ -1,0 +1,153 @@
+<!-- templates/courses.html -->
+
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+
+.coming-soon {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--gradient-surface);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.coming-soon-icon {
+    font-size: 64px;
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.coming-soon h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.coming-soon p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.quick-actions {
+    margin-bottom: 40px;
+    padding: 0 10px;
+}
+
+.quick-actions h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+
+.action-card {
+    background: var(--gradient-surface);
+    padding: 25px 15px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.action-card:active {
+    transform: scale(0.95);
+}
+
+.action-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    margin: 0 auto 12px;
+}
+
+.action-text {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="back-button" onclick="history.back()">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+    <h1>Все курсы</h1>
+</div>
+
+<div class="coming-soon">
+    <div class="coming-soon-icon">
+        <i class="fas fa-book-quran"></i>
+    </div>
+    <h2>Скоро здесь будут курсы по арабскому!</h2>
+    <p>Мы активно работаем над созданием увлекательных курсов по изучению арабского языка и Корана. В ближайшее время здесь появятся:</p>
+    <br>
+    <p>📚 <strong>Основы арабской грамматики</strong><br>
+    🗣️ <strong>Разговорный арабский</strong><br>
+    📖 <strong>Чтение Корана</strong><br>
+    🎯 <strong>Практические упражнения</strong></p>
+    <br>
+    <p>Следите за обновлениями!</p>
+</div>
+
+<div class="quick-actions">
+    <h2>Быстрые действия</h2>
+    <div class="actions-grid">
+        <div class="action-card" onclick="startReview()">
+            <div class="action-icon">
+                <i class="fas fa-redo"></i>
+            </div>
+            <div class="action-text">Повторение</div>
+        </div>
+        <div class="action-card" onclick="startTest()">
+            <div class="action-icon">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div class="action-text">Тест</div>
+        </div>
+        <div class="action-card" onclick="openAchievements()">
+            <div class="action-icon">
+                <i class="fas fa-medal"></i>
+            </div>
+            <div class="action-text">Достижения</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function startReview() {
+        alert('Функция повторения скоро будет доступна!');
+    }
+
+    function startTest() {
+        alert('Функция тестирования скоро будет доступна!');
+    }
+
+    function openAchievements() {
+        alert('Функция достижений скоро будет доступна!');
+    }
+</script>
+{% endblock %}

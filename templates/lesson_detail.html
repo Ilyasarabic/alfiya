@@ -1,0 +1,1146 @@
+<!-- templates/lesson_detail.html -->
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+/* Скрываем нижнее меню на странице урока */
+body {
+    padding-bottom: 1px !important;
+    overflow-x: hidden;
+}
+
+.bottom-nav {
+    display: none !important;
+}
+
+/* Стили для страницы урока */
+.lesson-container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 10px;
+    position: relative;
+    max-height: 100vh;
+}
+
+/* Этапы урока */
+.lesson-stage {
+    display: none;
+}
+
+.lesson-stage.active {
+    display: block;
+}
+
+/* ОДНА КАРТОЧКА - БЕЗ СКРОЛЛА */
+.cards-section {
+    margin-bottom: 2vh;
+    height: auto;
+    min-height: 60vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.single-card-container {
+    height: auto;
+    min-height: 50vh;
+    flex: 1;
+    position: relative;
+    perspective: 1200px;
+}
+
+.single-card {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    background: var(--gradient-surface);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.5),
+        0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.single-card.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 2vh 3vw;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.card-front {
+    background: var(--gradient-surface);
+    justify-content: space-between;
+}
+
+.card-back {
+    background: var(--surface-light);
+    transform: rotateY(180deg);
+    justify-content: space-between;
+}
+
+/* АДАПТИВНОЕ ФОТО - УВЕЛИЧЕННОЕ */
+.word-image {
+    width: 55vw;
+    height: 55vw;
+    max-width: 240px;
+    max-height: 240px;
+    min-width: 140px;
+    min-height: 140px;
+    border-radius: 18px;
+    object-fit: cover;
+    margin: 2vh auto;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+}
+
+.word-image img {
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    object-fit: cover;
+}
+
+/* АДАПТИВНЫЙ ТЕКСТ - ОПТИМИЗИРОВАННЫЙ */
+.arabic-word {
+    font-size: clamp(22px, 6.5vw, 34px);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1vh;
+    font-family: 'Arial', sans-serif;
+    line-height: 1.2;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+.transcription {
+    font-size: clamp(13px, 3.8vw, 15px);
+    color: var(--text-secondary);
+    margin-bottom: 1vh;
+    font-style: italic;
+    text-align: center;
+}
+
+.translation {
+    font-size: clamp(15px, 4.2vw, 19px);
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 1vh;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+.example-verse {
+    font-size: clamp(16px, 4.5vw, 20px);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 2vh 0 1vh 0;
+    line-height: 1.4;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    padding: 0 2vw;
+    word-wrap: break-word;
+}
+
+.example-translation {
+    font-size: clamp(13px, 3.8vw, 15px);
+    color: var(--text-secondary);
+    line-height: 1.3;
+    font-style: italic;
+    padding: 0 3vw;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1vh 0 0 0;
+    margin-top: auto;
+}
+
+/* АДАПТИВНЫЕ КНОПКИ */
+.audio-btn {
+    width: clamp(42px, 11vw, 48px);
+    height: clamp(42px, 11vw, 48px);
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: clamp(15px, 4vw, 17px);
+    box-shadow: var(--shadow-light);
+}
+
+.flip-btn {
+    width: clamp(38px, 10vw, 42px);
+    height: clamp(38px, 10vw, 42px);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: clamp(12px, 3vw, 14px);
+    backdrop-filter: blur(10px);
+    opacity: 0.7;
+}
+
+.flip-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.audio-btn:active, .flip-btn:active {
+    transform: scale(0.9);
+}
+
+/* Навигация карточек - БЕЗ ЦИФР */
+.cards-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1vh 0;
+    padding: 0 10px;
+}
+
+.nav-btn {
+    width: clamp(42px, 11vw, 48px);
+    height: clamp(42px, 11vw, 48px);
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: clamp(15px, 4vw, 17px);
+    box-shadow: var(--shadow-light);
+}
+
+.nav-btn:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.nav-btn:active:not(:disabled) {
+    transform: scale(0.9);
+}
+
+/* УБРАЛ СЧЕТЧИК КАРТОЧЕК */
+.cards-counter {
+    display: none;
+}
+
+/* Индикатор прогресса карточек - БЕЗ ЦИФР */
+.cards-progress {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin: 1vh 0 2vh 0;
+    flex-wrap: wrap;
+}
+
+.progress-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: var(--transition);
+}
+
+.progress-dot.active {
+    background: var(--primary);
+    transform: scale(1.2);
+}
+
+/* Убираем все номера вопросов с карточке */
+.card-front::before,
+.card-back::before,
+.card-front::after,
+.card-back::after {
+    display: none !important;
+}
+
+/* Упражнения - БЕЗ СКРОЛЛА */
+.exercise-content {
+    background: var(--gradient-surface);
+    border-radius: var(--border-radius);
+    padding: 15px 12px;
+    margin-bottom: 2vh;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    height: auto;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.exercise-header {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.exercise-title {
+    font-size: clamp(16px, 4.5vw, 20px);
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.exercise-description {
+    font-size: clamp(11px, 3.2vw, 13px);
+    color: var(--text-secondary);
+}
+
+/* Прогресс бар урока - УПРОЩЕННЫЙ */
+.lesson-progress {
+    margin: 2vh 0;
+    padding: 0 10px;
+    display: none;
+}
+
+.lesson-progress.visible {
+    display: block;
+}
+
+.progress-bar-container {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+/* КНОПКА НАЧАТЬ УПРАЖНЕНИЯ - АДАПТИВНАЯ */
+.start-exercises-btn {
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 30px);
+    max-width: 450px;
+    padding: clamp(14px, 3.5vw, 16px) clamp(18px, 4.5vw, 25px);
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: var(--border-radius);
+    color: white;
+    font-weight: 800;
+    font-size: clamp(14px, 3.8vw, 16px);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: var(--shadow);
+    z-index: 100;
+}
+
+.start-exercises-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: var(--transition);
+}
+
+.start-exercises-btn:hover::before {
+    left: 100%;
+}
+
+.start-exercises-btn:active {
+    transform: translateX(-50%) scale(0.98);
+}
+
+/* Кнопки навигации в упражнениях */
+.exercise-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 15px;
+}
+
+.btn-primary, .btn-secondary {
+    padding: clamp(10px, 2.8vw, 12px) clamp(12px, 3.5vw, 15px);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 700;
+    font-size: clamp(12px, 3.2vw, 14px);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 1;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-primary:active, .btn-secondary:active {
+    transform: scale(0.95);
+}
+
+/* Верно/Неверно */
+.true-false-exercise {
+    text-align: center;
+}
+
+.true-false-image {
+    width: 45vw;
+    height: 45vw;
+    max-width: 180px;
+    max-height: 180px;
+    min-width: 100px;
+    min-height: 100px;
+    border-radius: 16px;
+    object-fit: cover;
+    margin: 0 auto 2vh auto;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.true-false-question {
+    font-size: clamp(14px, 4vw, 16px);
+    font-weight: 600;
+    margin-bottom: 3vh;
+    color: var(--text-primary);
+    line-height: 1.3;
+    padding: 0 2vw;
+}
+
+.true-false-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.btn-true, .btn-false {
+    padding: clamp(12px, 3.2vw, 14px) clamp(14px, 3.8vw, 16px);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 700;
+    font-size: clamp(12px, 3.2vw, 14px);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-true {
+    background: var(--gradient-secondary);
+    color: white;
+}
+
+.btn-false {
+    background: var(--gradient-accent);
+    color: white;
+}
+
+.btn-true:active, .btn-false:active {
+    transform: scale(0.95);
+}
+
+/* Аудио тест - КОМПАКТНЫЙ */
+.audio-test-exercise {
+    text-align: center;
+}
+
+.audio-test-image {
+    width: 40vw;
+    height: 40vw;
+    max-width: 160px;
+    max-height: 160px;
+    min-width: 90px;
+    min-height: 90px;
+    border-radius: 14px;
+    object-fit: cover;
+    margin: 0 auto 2vh auto;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.audio-btn-large {
+    width: clamp(42px, 11vw, 48px);
+    height: clamp(42px, 11vw, 48px);
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: clamp(16px, 4.5vw, 20px);
+    margin: 0 auto 2vh auto;
+    box-shadow: var(--shadow-light);
+}
+
+.audio-btn-large:active {
+    transform: scale(0.9);
+}
+
+.audio-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.audio-option {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
+    padding: clamp(10px, 2.8vw, 12px) clamp(12px, 3.5vw, 15px);
+    border-radius: var(--border-radius-small);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    font-size: clamp(12px, 3.2vw, 14px);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.audio-option:active {
+    transform: scale(0.98);
+}
+
+.audio-option.selected {
+    border-color: var(--primary);
+    background: rgba(139, 95, 191, 0.15);
+}
+
+.audio-option.correct {
+    border-color: var(--success);
+    background: rgba(46, 204, 113, 0.15);
+}
+
+.audio-option.incorrect {
+    border-color: var(--error);
+    background: rgba(231, 76, 60, 0.15);
+}
+
+/* Письмо */
+.writing-exercise {
+    text-align: center;
+}
+
+.writing-image {
+    width: 40vw;
+    height: 40vw;
+    max-width: 160px;
+    max-height: 160px;
+    min-width: 90px;
+    min-height: 90px;
+    border-radius: 14px;
+    object-fit: cover;
+    margin: 0 auto 2vh auto;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.writing-audio {
+    margin-bottom: 2vh;
+}
+
+.writing-input-container {
+    margin-bottom: 2vh;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.writing-input {
+    width: 100%;
+    padding: clamp(12px, 3.2vw, 14px) clamp(12px, 3.5vw, 15px);
+    border-radius: var(--border-radius);
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    font-size: clamp(12px, 3.5vw, 14px);
+    font-weight: 600;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.writing-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(139, 95, 191, 0.1);
+}
+
+.writing-feedback {
+    margin-top: 1vh;
+    padding: 8px 12px;
+    border-radius: var(--border-radius-small);
+    font-weight: 600;
+    display: none;
+    font-size: clamp(11px, 3.2vw, 13px);
+}
+
+.writing-feedback.correct {
+    background: rgba(46, 204, 113, 0.15);
+    color: var(--success);
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    display: block;
+}
+
+.writing-feedback.incorrect {
+    background: rgba(231, 76, 60, 0.15);
+    color: var(--error);
+    border: 1px solid rgba(231, 76, 60, 0.3);
+    display: block;
+}
+
+/* Результаты */
+.results-section {
+    text-align: center;
+    background: var(--gradient-surface);
+    border-radius: var(--border-radius);
+    padding: clamp(15px, 4vw, 20px) clamp(12px, 3.5vw, 15px);
+    margin-bottom: 2vh;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.results-icon {
+    font-size: clamp(36px, 10vw, 48px);
+    margin-bottom: 2vh;
+    color: var(--success);
+}
+
+.results-title {
+    font-size: clamp(18px, 5vw, 20px);
+    font-weight: 700;
+    margin-bottom: 1vh;
+    color: var(--text-primary);
+}
+
+.results-score {
+    font-size: clamp(28px, 8vw, 36px);
+    font-weight: 800;
+    margin-bottom: 1vh;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.results-description {
+    font-size: clamp(12px, 3.5vw, 14px);
+    color: var(--text-secondary);
+    margin-bottom: 3vh;
+    line-height: 1.4;
+    padding: 0 2vw;
+}
+
+.results-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Индикатор прогресса упражнений */
+.exercise-progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1vh;
+    font-size: clamp(11px, 3.2vw, 13px);
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.exercise-counter {
+    color: var(--text-primary);
+}
+
+/* Анимации */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.lesson-stage.active {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes cardChange {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.single-card {
+    animation: cardChange 0.3s ease-out;
+}
+
+/* Убираем фон при перевороте */
+.single-card-container::before,
+.single-card-container::after {
+    display: none;
+}
+
+/* Убираем любые цифры на карточках */
+[class*="number"],
+[class*="counter"],
+[class*="index"] {
+    display: none !important;
+}
+
+/* Анимация shimmer для прогресс бара */
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* ЭКСТРЕМАЛЬНАЯ АДАПТИВНОСТЬ ДЛЯ ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНОВ */
+@media (max-height: 600px) {
+    .cards-section {
+        min-height: 55vh;
+    }
+    
+    .single-card {
+        min-height: 350px;
+    }
+    
+    .word-image {
+        width: 45vw;
+        height: 45vw;
+        margin: 1vh auto;
+    }
+    
+    .example-verse {
+        margin: 1vh 0;
+    }
+    
+    .card-actions {
+        padding-top: 0.5vh;
+    }
+    
+    .exercise-content {
+        min-height: 250px;
+        padding: 12px 10px;
+    }
+}
+
+@media (max-height: 500px) {
+    .cards-section {
+        min-height: 50vh;
+    }
+    
+    .single-card {
+        min-height: 300px;
+    }
+    
+    .word-image {
+        width: 40vw;
+        height: 40vw;
+    }
+    
+    .arabic-word {
+        margin-bottom: 0.5vh;
+        font-size: clamp(18px, 5vw, 26px);
+    }
+    
+    .example-verse {
+        margin: 0.5vh 0;
+        font-size: clamp(14px, 4vw, 16px);
+    }
+    
+    .exercise-content {
+        min-height: 220px;
+        padding: 10px 8px;
+    }
+    
+    .start-exercises-btn {
+        bottom: 10px;
+        padding: 12px 15px;
+    }
+}
+
+/* Горизонтальная ориентация */
+@media (max-width: 480px) and (max-height: 400px) {
+    .cards-section {
+        min-height: 45vh;
+    }
+    
+    .single-card {
+        min-height: 250px;
+    }
+    
+    .word-image {
+        width: 30vw;
+        height: 30vw;
+        margin: 0.2vh auto;
+    }
+    
+    .arabic-word {
+        font-size: clamp(16px, 4.5vw, 20px);
+    }
+    
+    .card-front, .card-back {
+        padding: 1vh 2vw;
+    }
+    
+    .exercise-content {
+        min-height: 200px;
+        padding: 8px 6px;
+    }
+}
+
+/* Очень маленькие устройства */
+@media (max-width: 320px) {
+    .lesson-container {
+        padding: 0 5px;
+    }
+    
+    .exercise-content {
+        padding: 10px 8px;
+    }
+    
+    .start-exercises-btn {
+        width: calc(100% - 20px);
+        bottom: 10px;
+    }
+    
+    .audio-option {
+        padding: 8px 10px;
+        font-size: 11px;
+    }
+}
+
+/* Поддержка очень высоких экранов */
+@media (min-height: 800px) {
+    .cards-section {
+        min-height: 65vh;
+    }
+    
+    .single-card {
+        min-height: 500px;
+    }
+    
+    .word-image {
+        width: 60vw;
+        height: 60vw;
+        max-width: 280px;
+        max-height: 280px;
+    }
+}
+
+/* Улучшенная поддержка touch */
+@media (hover: none) and (pointer: coarse) {
+    .audio-btn, .flip-btn, .nav-btn, 
+    .btn-primary, .btn-secondary,
+    .btn-true, .btn-false,
+    .audio-option {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .writing-input {
+        min-height: 44px;
+        font-size: 16px;
+    }
+}
+
+/* Поддержка landscape - УЛУЧШЕННАЯ */
+@media (orientation: landscape) and (max-height: 500px) {
+    .cards-section {
+        min-height: 35vh;
+    }
+    
+    .exercise-content {
+        min-height: 180px;
+        padding: 8px 10px;
+    }
+    
+    .start-exercises-btn {
+        position: relative;
+        bottom: auto;
+        margin-top: 1vh;
+        margin-bottom: 0.5vh;
+    }
+    
+    .word-image {
+        width: 30vw;
+        height: 30vw;
+    }
+    
+    .true-false-image,
+    .audio-test-image,
+    .writing-image {
+        width: 25vw;
+        height: 25vw;
+    }
+}
+
+/* ФИКС ДЛЯ АУДИО ТЕСТА - гарантируем что кнопки поместятся */
+.audio-test-exercise .exercise-content {
+    min-height: 280px;
+}
+
+.audio-options {
+    max-height: 200px;
+}
+
+/* Гарантируем что контент не выходит за пределы */
+.card-front > *:not(.card-actions),
+.card-back > *:not(.card-actions) {
+    flex-shrink: 0;
+}
+
+.card-actions {
+    flex-shrink: 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lesson-container">
+    <!-- Заголовок -->
+    <div class="page-header">
+        <div class="back-button" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        <h1 id="lesson-title">Загрузка...</h1>
+    </div>
+
+    <!-- Прогресс урока - ТОЛЬКО ЛИНИЯ -->
+    <div class="lesson-progress" id="lesson-progress">
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Этап 1: ОДНА КАРТОЧКА -->
+    <div class="lesson-stage active" id="stage-cards">
+        <div class="cards-section">
+            <div class="single-card-container">
+                <div class="single-card" id="single-card" onclick="lesson.flipCard()">
+                    <!-- Лицевая сторона -->
+                    <div class="card-front" id="card-front">
+                        <div class="word-image" id="card-image">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="arabic-word" id="card-arabic">Загрузка...</div>
+                        <div class="transcription" id="card-transcription"></div>
+                        <div class="translation" id="card-translation"></div>
+                        
+                        <div class="card-actions">
+                            <button class="flip-btn" onclick="event.stopPropagation(); lesson.flipCard()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="audio-btn" id="card-audio-btn" style="display: none;" onclick="event.stopPropagation(); lesson.playCurrentAudio()">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Обратная сторона -->
+                    <div class="card-back" id="card-back">
+                        <div class="example-verse" id="card-example-verse"></div>
+                        <div class="example-translation" id="card-example-translation"></div>
+                        
+                        <div class="card-actions">
+                            <button class="flip-btn" onclick="event.stopPropagation(); lesson.flipCard()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="audio-btn" id="card-back-audio-btn" style="display: none;" onclick="event.stopPropagation(); lesson.playCurrentAudio()">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Навигация карточек - БЕЗ ЦИФР -->
+            <div class="cards-navigation">
+                <button class="nav-btn" id="prev-card-btn" onclick="lesson.previousCard()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                
+                <button class="nav-btn" id="next-card-btn" onclick="lesson.nextCard()">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Индикатор прогресса - БЕЗ ЦИФР -->
+            <div class="cards-progress" id="cards-progress">
+                <!-- Индикаторы будут добавлены через JS -->
+            </div>
+        </div>
+        
+        <!-- Кнопка начала упражнений - ВНИЗУ ЭКРАНА -->
+        <button class="start-exercises-btn" onclick="lesson.startExercises()">
+            <i class="fas fa-play"></i>
+            Начать упражнения
+        </button>
+    </div>
+
+    <!-- Этап 2: Упражнение Верно/Неверно -->
+    <div class="lesson-stage" id="stage-exercise1">
+        <div class="exercise-content true-false-exercise" id="exercise-true-false">
+            <div class="exercise-header">
+                <h2 class="exercise-title">Верно/Неверно</h2>
+                <p class="exercise-description">Определите, соответствует ли перевод слову</p>
+            </div>
+            
+            <!-- Индикатор прогресса упражнения -->
+            <div class="exercise-progress">
+                <span>Вопрос</span>
+                <span class="exercise-counter" id="true-false-counter">1/3</span>
+            </div>
+            
+            <div id="true-false-content">
+                <!-- Контент генерируется JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Этап 3: Аудио тест -->
+    <div class="lesson-stage" id="stage-exercise2">
+        <div class="exercise-content audio-test-exercise" id="exercise-audio">
+            <div class="exercise-header">
+                <h2 class="exercise-title">Аудио тест</h2>
+                <p class="exercise-description">Прослушайте слово и выберите правильный перевод</p>
+            </div>
+            
+            <!-- Индикатор прогресса упражнения -->
+            <div class="exercise-progress">
+                <span>Вопрос</span>
+                <span class="exercise-counter" id="audio-counter">1/3</span>
+            </div>
+            
+            <div id="audio-test-content">
+                <!-- Контент генерируется JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Этап 4: Письмо -->
+    <div class="lesson-stage" id="stage-exercise3">
+        <div class="exercise-content writing-exercise" id="exercise-writing">
+            <div class="exercise-header">
+                <h2 class="exercise-title">Письмо</h2>
+                <p class="exercise-description">Напишите перевод услышанного слова</p>
+            </div>
+            
+            <!-- Индикатор прогресса упражнения -->
+            <div class="exercise-progress">
+                <span>Вопрос</span>
+                <span class="exercise-counter" id="writing-counter">1/3</span>
+            </div>
+            
+            <div id="writing-content">
+                <!-- Контент генерируется JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Этап 5: Результаты -->
+    <div class="lesson-stage" id="stage-results">
+        <div class="results-section" id="results-content">
+            <div class="results-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h2 class="results-title">Урок завершен!</h2>
+            <div class="results-score" id="final-score">0%</div>
+            <p class="results-description" id="results-description">
+                Отличная работа! Вы успешно завершили все упражнения.
+            </p>
+            
+            <div class="results-actions">
+                <button class="btn-secondary" onclick="lesson.restartLesson()">
+                    <i class="fas fa-redo"></i>
+                    Пройти заново
+                </button>
+                <button class="btn-primary" onclick="lesson.goToDashboard()">
+                    <i class="fas fa-home"></i>
+                    На главную
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/lesson_detail.js"></script>
+{% endblock %}

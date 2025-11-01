@@ -1,0 +1,136 @@
+<!-- templates/base.html -->
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ألفية - 1000 слов Корана</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="manifest" href="/static/manifest.json">
+    {% block extra_css %}{% endblock %}
+    <meta name="theme-color" content="#8B5FBF">
+</head>
+<body>
+    <!-- Arabic Letters Background -->
+    <div class="arabic-bg">
+        <div class="arabic-letter letter-1">أ</div>
+        <div class="arabic-letter letter-2">ل</div>
+        <div class="arabic-letter letter-3">ف</div>
+        <div class="arabic-letter letter-4">ي</div>
+        <div class="arabic-letter letter-5">ة</div>
+    </div>
+
+    <div class="dashboard">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="{% url 'dashboard' %}" class="nav-item" id="nav-home">
+            <div class="nav-indicator"></div>
+            <div class="nav-icon">
+                <i class="fas fa-home"></i>
+            </div>
+            <span class="nav-label">Главная</span>
+        </a>
+        <a href="{% url 'courses' %}" class="nav-item" id="nav-courses">
+            <div class="nav-indicator"></div>
+            <div class="nav-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <span class="nav-label">Курсы</span>
+        </a>
+        <a href="{% url 'progress' %}" class="nav-item" id="nav-progress">
+            <div class="nav-indicator"></div>
+            <div class="nav-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="nav-label">Прогресс</span>
+        </a>
+        <a href="{% url 'profile' %}" class="nav-item" id="nav-profile">
+            <div class="nav-indicator"></div>
+            <div class="nav-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <span class="nav-label">Профиль</span>
+        </a>
+    </nav>
+
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+    
+    {% block extra_js %}
+    {% endblock %}
+
+    <script>
+        // Навигация для нижнего меню
+        class Navigation {
+            constructor() {
+                this.currentPage = this.getCurrentPage();
+                this.setupNavigation();
+            }
+
+            getCurrentPage() {
+                const path = window.location.pathname;
+                console.log('Current path:', path);
+                
+                if (path === '/' || path === '/dashboard/') return 'home';
+                if (path.includes('/courses')) return 'courses';
+                if (path.includes('/progress')) return 'progress';
+                if (path.includes('/profile')) return 'profile';
+                return 'home';
+            }
+
+            setupNavigation() {
+                // Устанавливаем активный пункт меню
+                this.setActiveNav(this.currentPage);
+
+                // Обработчики кликов для навигации
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        // Позволяем ссылке работать нормально
+                        // Просто обновляем активное состояние
+                        const page = item.id.replace('nav-', '');
+                        this.currentPage = page;
+                        this.setActiveNav(page);
+                        
+                        // Добавляем небольшую задержку для визуальной обратной связи
+                        setTimeout(() => {
+                            // Ссылка сама переведет на страницу
+                        }, 100);
+                    });
+                });
+
+                // Обновляем активное меню при загрузке страницы
+                window.addEventListener('load', () => {
+                    this.currentPage = this.getCurrentPage();
+                    this.setActiveNav(this.currentPage);
+                });
+            }
+
+            setActiveNav(navItem) {
+                console.log('Setting active nav:', navItem);
+                
+                // Убираем активный класс у всех пунктов
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Добавляем активный класс текущему пункту
+                const activeNav = document.getElementById(`nav-${navItem}`);
+                if (activeNav) {
+                    activeNav.classList.add('active');
+                }
+            }
+        }
+
+        // Инициализация навигации при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            window.navigation = new Navigation();
+        });
+    </script>
+</body>
+</html>

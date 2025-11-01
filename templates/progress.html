@@ -1,0 +1,1078 @@
+<!-- templates/progress.html -->
+
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+.progress-overview {
+    margin-bottom: 30px;
+    padding: 0 10px;
+}
+
+.main-progress-card {
+    background: var(--gradient-surface);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    flex-wrap: wrap;
+}
+
+.progress-circle {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.progress-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.progress-info h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.progress-stats {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.progress-stats .stat {
+    text-align: center;
+    min-width: 80px;
+}
+
+.progress-stats .stat-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.progress-stats .stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.stats-grid-small {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.stat-card-small {
+    background: var(--gradient-surface);
+    padding: 16px;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    min-width: 0;
+}
+
+.stat-card-small .stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.stat-card-small .stat-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+    line-height: 1.2;
+}
+
+.stat-card-small .stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+/* Заголовки секций с табами */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.section-header h2 {
+    font-size: 20px;
+    margin: 0;
+}
+
+.chart-tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-small);
+    padding: 4px;
+    flex-wrap: wrap;
+}
+
+.chart-tab {
+    padding: 6px 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.chart-tab.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* Контейнеры графиков */
+.chart-container {
+    background: var(--gradient-surface);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Прогресс по блокам */
+.blocks-progress-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.block-progress-item {
+    background: var(--gradient-surface);
+    padding: 16px;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition);
+    min-width: 0;
+}
+
+.block-progress-item.completed {
+    border-color: var(--success);
+}
+
+.block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.block-header h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    flex: 1;
+    min-width: 120px;
+}
+
+.block-percent {
+    font-weight: 800;
+    color: var(--success);
+    background: rgba(46, 204, 113, 0.15);
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.block-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.words-count {
+    color: var(--text-primary);
+}
+
+.accuracy {
+    color: var(--primary);
+}
+
+/* Распределение времени */
+.time-distribution {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-items: center;
+}
+
+@media (min-width: 768px) {
+    .time-distribution {
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+}
+
+.time-chart {
+    background: var(--gradient-surface);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 250px;
+}
+
+.time-chart canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+.time-stats {
+    display: grid;
+    gap: 12px;
+}
+
+.time-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--gradient-surface);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.time-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.time-value {
+    font-weight: 800;
+    color: var(--primary);
+    font-size: 14px;
+}
+
+/* Достижения */
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.achievement-card {
+    background: var(--gradient-surface);
+    padding: 16px;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: var(--transition);
+    min-width: 0;
+}
+
+.achievement-card:active {
+    transform: translateY(-2px);
+}
+
+.achievement-icon {
+    font-size: 24px;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.achievement-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.achievement-info h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.achievement-info p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.achievement-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* Привычки обучения */
+.habits-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.habit-stat {
+    background: var(--gradient-surface);
+    padding: 20px 16px;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    justify-content: center;
+    min-width: 0;
+}
+
+.habit-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.habit-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.habit-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+/* Прогресс бар */
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* Состояние пустого контента */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 480px) {
+    .main-progress-card {
+        padding: 16px;
+        gap: 16px;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .progress-circle {
+        transform: scale(0.9);
+    }
+    
+    .progress-info h3 {
+        font-size: 16px;
+    }
+    
+    .progress-stats {
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .progress-stats .stat-value {
+        font-size: 20px;
+    }
+    
+    .stats-grid-small {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .chart-tabs {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .blocks-progress-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .achievements-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .habits-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .time-chart {
+        padding: 15px;
+        min-height: 200px;
+    }
+}
+
+/* Улучшения для очень маленьких экранов */
+@media (max-width: 360px) {
+    .progress-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .block-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .block-percent {
+        align-self: flex-start;
+    }
+    
+    .achievement-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .habit-stat {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+}
+
+/* Улучшения для больших экранов */
+@media (min-width: 1200px) {
+    .blocks-progress-grid {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
+    
+    .achievements-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+}
+
+/* Улучшения доступности */
+@media (prefers-reduced-motion: reduce) {
+    .main-progress-card,
+    .block-progress-item,
+    .achievement-card,
+    .habit-stat,
+    .chart-tab {
+        transition: none;
+    }
+    
+    .progress-fill {
+        transition: none;
+    }
+}
+
+/* В ваш style.css добавьте */
+.weekly-activity {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.day-bar {
+    text-align: center;
+}
+
+.bar-container {
+    height: 120px;
+    display: flex;
+    align-items: end;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+
+.time-bar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px 4px 0 0;
+    flex: 1;
+}
+
+.words-bar {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 4px 4px 0 0;
+    flex: 1;
+}
+
+.time-distribution-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.time-slot {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid transparent;
+}
+
+.time-slot.highlight {
+    border-color: #4CAF50;
+    background: #f8fff8;
+}
+
+.habits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.habit-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="back-button" onclick="history.back()">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+    <h1>Мой прогресс</h1>
+</div>
+
+<!-- Основная статистика -->
+<div class="progress-overview">
+    <div class="main-progress-card">
+        <div class="progress-circle">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+                <circle cx="60" cy="60" r="54" fill="none" stroke="url(#progressGradient)" 
+                        stroke-width="8" stroke-linecap="round" 
+                        stroke-dasharray="339.292" stroke-dashoffset="0" class="progress-ring"/>
+                <defs>
+                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#8B5FBF"/>
+                        <stop offset="100%" stop-color="#2EC4B6"/>
+                    </linearGradient>
+                </defs>
+                <text x="60" y="65" text-anchor="middle" fill="white" font-size="24" font-weight="700">
+                    <tspan id="progress-percent">0%</tspan>
+                </text>
+            </svg>
+        </div>
+        <div class="progress-info">
+            <h3>Общий прогресс</h3>
+            <div class="progress-stats">
+                <div class="stat">
+                    <div class="stat-value" id="learned-words-count">0</div>
+                    <div class="stat-label">изучено слов</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="total-words-count">1000</div>
+                    <div class="stat-label">всего слов</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-grid-small">
+        <div class="stat-card-small">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value" id="total-time">0ч</div>
+                <div class="stat-label">времени изучения</div>
+            </div>
+        </div>
+        <div class="stat-card-small">
+            <div class="stat-icon">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value" id="total-sessions">0</div>
+                <div class="stat-label">учебных сессий</div>
+            </div>
+        </div>
+        <div class="stat-card-small">
+            <div class="stat-icon">
+                <i class="fas fa-fire"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value" id="current-streak">0</div>
+                <div class="stat-label">дней подряд</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- График активности -->
+<div class="progress-section">
+    <div class="section-header">
+        <h2>Активность за 30 дней</h2>
+        <div class="chart-tabs">
+            <button class="chart-tab active" data-chart="words">Слова</button>
+            <button class="chart-tab" data-chart="time">Время</button>
+            <button class="chart-tab" data-chart="accuracy">Точность</button>
+        </div>
+    </div>
+    <div class="chart-container">
+        <canvas id="activityChart" width="400" height="200"></canvas>
+    </div>
+</div>
+
+<!-- Прогресс по блокам -->
+<div class="progress-section">
+    <h2>Прогресс по блокам</h2>
+    <div class="blocks-progress-grid">
+        <!-- Блоки будут заполняться JavaScript -->
+    </div>
+</div>
+
+<!-- Распределение по времени суток -->
+<div class="progress-section">
+    <h2>В какое время вы учитесь?</h2>
+    <div class="time-distribution">
+        <div class="time-chart">
+            <canvas id="timeChart" width="300" height="300"></canvas>
+        </div>
+        <div class="time-stats">
+            <div class="time-stat">
+                <div class="time-label">Утро</div>
+                <div class="time-value" id="morning-time">0ч</div>
+            </div>
+            <div class="time-stat">
+                <div class="time-label">День</div>
+                <div class="time-value" id="afternoon-time">0ч</div>
+            </div>
+            <div class="time-stat">
+                <div class="time-label">Вечер</div>
+                <div class="time-value" id="evening-time">0ч</div>
+            </div>
+            <div class="time-stat">
+                <div class="time-label">Ночь</div>
+                <div class="time-value" id="night-time">0ч</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Достижения -->
+<div class="progress-section">
+    <h2>Ваши достижения</h2>
+    <div class="achievements-grid">
+        <!-- Достижения будут заполняться JavaScript -->
+    </div>
+</div>
+
+<!-- Привычки обучения -->
+<div class="progress-section">
+    <h2>Ваши привычки обучения</h2>
+    <div class="habits-stats">
+        <div class="habit-stat">
+            <div class="habit-icon">
+                <i class="fas fa-sun"></i>
+            </div>
+            <div class="habit-info">
+                <div class="habit-value" id="favorite-time">Вечер</div>
+                <div class="habit-label">Любимое время для учебы</div>
+            </div>
+        </div>
+        <div class="habit-stat">
+            <div class="habit-icon">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="habit-info">
+                <div class="habit-value" id="avg-session-time">0 мин</div>
+                <div class="habit-label">Средняя сессия</div>
+            </div>
+        </div>
+        <div class="habit-stat">
+            <div class="habit-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <div class="habit-info">
+                <div class="habit-value" id="words-per-day">0</div>
+                <div class="habit-label">Слов в день</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Глобальные переменные для графиков
+    let activityChart = null;
+    let timeChart = null;
+
+    // Инициализация страницы прогресса
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadProgressData();
+        setupChartTabs();
+    });
+
+    // Загрузка данных прогресса
+    async function loadProgressData() {
+        try {
+            const response = await auth.apiCall('/progress/detailed/');
+            if (response) {
+                updateProgressUI(response);
+                createCharts(response);
+            }
+        } catch (error) {
+            console.error('Error loading progress data:', error);
+            showErrorState('Не удалось загрузить данные прогресса');
+        }
+    }
+
+    // Обновление UI данными
+    function updateProgressUI(data) {
+        const overview = data.overview;
+        
+        // Основной прогресс
+        document.getElementById('progress-percent').textContent = `${overview.progress_percentage}%`;
+        document.getElementById('learned-words-count').textContent = overview.learned_words;
+        document.getElementById('total-words-count').textContent = overview.total_words;
+        
+        // Статистика
+        document.getElementById('total-time').textContent = `${Math.round(overview.total_study_time / 60)}ч`;
+        document.getElementById('total-sessions').textContent = overview.total_sessions;
+        document.getElementById('current-streak').textContent = overview.current_streak;
+        
+        // Анимируем прогресс круг
+        animateProgressCircle(overview.progress_percentage);
+        
+        // Прогресс по блокам
+        updateBlocksProgress(data.blocks_progress);
+        
+        // Распределение времени
+        updateTimeDistribution(data.time_distribution);
+        
+        // Достижения
+        updateAchievements(data.achievements);
+        
+        // Привычки
+        updateStudyHabits(data.study_habits);
+    }
+
+    // Анимация прогресс круга
+    function animateProgressCircle(percentage) {
+        const circle = document.querySelector('.progress-ring');
+        const radius = 54;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference - (percentage / 100) * circumference;
+        
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = circumference;
+        
+        setTimeout(() => {
+            circle.style.transition = 'stroke-dashoffset 1.5s ease-in-out';
+            circle.style.strokeDashoffset = offset;
+        }, 100);
+    }
+
+    // Обновление прогресса по блокам
+    function updateBlocksProgress(blocks) {
+        const container = document.querySelector('.blocks-progress-grid');
+        
+        if (blocks.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-book-open"></i>
+                    <p>Начните изучение, чтобы отслеживать прогресс по блокам</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = blocks.map(block => `
+            <div class="block-progress-item ${block.is_completed ? 'completed' : ''}">
+                <div class="block-header">
+                    <h4>${block.title}</h4>
+                    <span class="block-percent">${block.progress_percentage}%</span>
+                </div>
+                <div class="block-stats">
+                    <span class="words-count">${block.learned_words}/${block.total_words} слов</span>
+                    <span class="accuracy">${block.accuracy}% точность</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${block.progress_percentage}%"></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Обновление распределения времени
+    function updateTimeDistribution(timeData) {
+        const total = Object.values(timeData).reduce((sum, val) => sum + val, 0);
+        
+        document.getElementById('morning-time').textContent = `${Math.round(timeData.morning / 60)}ч`;
+        document.getElementById('afternoon-time').textContent = `${Math.round(timeData.afternoon / 60)}ч`;
+        document.getElementById('evening-time').textContent = `${Math.round(timeData.evening / 60)}ч`;
+        document.getElementById('night-time').textContent = `${Math.round(timeData.night / 60)}ч`;
+    }
+
+    // Обновление достижений
+    function updateAchievements(achievements) {
+        const container = document.querySelector('.achievements-grid');
+        
+        if (achievements.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-medal"></i>
+                    <p>Продолжайте обучение, чтобы получать достижения</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = achievements.map(achievement => `
+            <div class="achievement-card">
+                <div class="achievement-icon">${achievement.icon}</div>
+                <div class="achievement-info">
+                    <h4>${achievement.name}</h4>
+                    <p>${achievement.description}</p>
+                    <span class="achievement-date">Получено: ${achievement.earned_at}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Обновление привычек обучения
+    function updateStudyHabits(habits) {
+        document.getElementById('favorite-time').textContent = getRussianTime(habits.favorite_time);
+        document.getElementById('avg-session-time').textContent = `${Math.round(habits.average_session_time)} мин`;
+        document.getElementById('words-per-day').textContent = Math.round(habits.words_per_day);
+    }
+
+    // Создание графиков
+    function createCharts(data) {
+        createActivityChart(data.chart_data);
+        createTimeChart(data.time_distribution);
+    }
+
+    // График активности
+    function createActivityChart(chartData) {
+        const ctx = document.getElementById('activityChart').getContext('2d');
+        
+        const labels = chartData.map(item => {
+            const date = new Date(item.date);
+            return `${date.getDate()}.${date.getMonth() + 1}`;
+        });
+        
+        const wordsData = chartData.map(item => item.words_learned);
+        const timeData = chartData.map(item => Math.round(item.time_studied / 60)); // в часах
+        const accuracyData = chartData.map(item => item.accuracy);
+        
+        activityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Слова изучено',
+                    data: wordsData,
+                    borderColor: '#8B5FBF',
+                    backgroundColor: 'rgba(139, 95, 191, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Круговая диаграмма времени
+    function createTimeChart(timeData) {
+        const ctx = document.getElementById('timeChart').getContext('2d');
+        
+        timeChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Утро (6-12)', 'День (12-18)', 'Вечер (18-24)', 'Ночь (0-6)'],
+                datasets: [{
+                    data: [
+                        Math.round(timeData.morning / 60),
+                        Math.round(timeData.afternoon / 60), 
+                        Math.round(timeData.evening / 60),
+                        Math.round(timeData.night / 60)
+                    ],
+                    backgroundColor: [
+                        '#FF9F1C', // утро - оранжевый
+                        '#2EC4B6', // день - бирюзовый  
+                        '#8B5FBF', // вечер - фиолетовый
+                        '#FF3366'  // ночь - розовый
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Переключение вкладок графика
+    function setupChartTabs() {
+        const tabs = document.querySelectorAll('.chart-tab');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Пока просто меняем активный класс
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Здесь можно добавить переключение данных графика
+            });
+        });
+    }
+
+    // Вспомогательные функции
+    function getRussianTime(timeKey) {
+        const times = {
+            'morning': 'Утро',
+            'afternoon': 'День', 
+            'evening': 'Вечер',
+            'night': 'Ночь'
+        };
+        return times[timeKey] || 'Вечер';
+    }
+
+    function showErrorState(message) {
+        // Можно добавить красивый вывод ошибок
+        console.error(message);
+    }
+
+    // Обновление данных каждые 30 секунд
+    setInterval(loadProgressData, 30000);
+</script>
+{% endblock %}
