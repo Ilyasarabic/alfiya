@@ -10,23 +10,23 @@ class Dashboard {
     constructor() {
         this.auth = auth;
         this.dashboardData = null;
-    }     
+    }
 
     async initialize() {
         console.log('Dashboard initialization started');
-        
+
         // Инициализируем аутентификацию
         await this.auth.initialize();
-        
+
         // Загружаем данные дашборда
         await this.loadDashboardData();
-        
+
         // Рендерим дашборд
         this.renderDashboard();
-        
+
         // Настраиваем обработчики событий
         this.setupEventListeners();
-        
+
         console.log('Dashboard initialized successfully');
     }
 
@@ -34,13 +34,13 @@ class Dashboard {
         try {
             console.log('Loading dashboard data...');
             this.showLoadingState();
-            
+
             this.dashboardData = await this.auth.apiCall('/dashboard/');
-            
+
             if (!this.dashboardData) {
                 throw new Error('Failed to load dashboard data');
             }
-            
+
             console.log('Dashboard data loaded:', this.dashboardData);
             this.hideLoadingState();
         } catch (error) {
@@ -79,7 +79,7 @@ class Dashboard {
         // Set greeting based on time
         const hour = new Date().getHours();
         let timeGreeting = 'السلام عليكم';
-        
+
         if (hour < 6) timeGreeting = 'تهجد مبارك';
         else if (hour < 12) timeGreeting = 'صباح الخير';
         else if (hour < 18) timeGreeting = 'مساء الخير';
@@ -112,18 +112,18 @@ class Dashboard {
 
     renderStats() {
         const stats = this.dashboardData.stats;
-        
+
         // Learned words
         document.getElementById('learned-words').textContent = stats.learned_words || 0;
-        
+
         // Progress bar
         const progressBar = document.getElementById('words-progress-bar');
         const progressPercentage = stats.progress_percentage || 0;
         progressBar.style.width = `${progressPercentage}%`;
-        
+
         // Today's words
         document.getElementById('today-words').textContent = stats.today_words || 0;
-        
+
         // Weekly trend - real logic
         const trendElement = document.getElementById('trend-text');
         if (stats.today_words > 0) {
@@ -150,7 +150,7 @@ class Dashboard {
     renderBlocks() {
         const container = document.getElementById('blocks-container');
         const blocks = this.dashboardData.blocks;
-        
+
         if (!blocks || blocks.length === 0) {
             container.innerHTML = `
                 <div class="error-state">
@@ -173,18 +173,18 @@ class Dashboard {
     createBlockElement(block) {
         const div = document.createElement('div');
         div.className = `block-card ${block.is_locked ? 'locked' : 'active'}`;
-        
+
         // Reliable progress calculation
         let progressPercentage = 0;
         let progressText = '';
         let lessonsCompleted = 0;
         let totalLessons = 0;
-        
+
         if (block.progress) {
             lessonsCompleted = block.progress.lessons_completed || 0;
             totalLessons = block.progress.total_lessons || 0;
         }
-        
+
         if (totalLessons > 0) {
             progressPercentage = Math.round((lessonsCompleted / totalLessons) * 100);
             progressText = `${lessonsCompleted}/${totalLessons} уроков`;
@@ -197,7 +197,7 @@ class Dashboard {
             progressPercentage = 0;
         }
 
-        const statusHtml = block.is_locked ? 
+        const statusHtml = block.is_locked ?
             `<span class="status-locked">
                 <i class="fas fa-lock"></i>
                 Заблокировано
@@ -207,7 +207,7 @@ class Dashboard {
                 Доступно
             </span>`;
 
-        const lockOverlay = block.is_locked ? 
+        const lockOverlay = block.is_locked ?
             `<div class="lock-overlay">
                 <div class="lock-icon">
                     <i class="fas fa-lock"></i>
@@ -264,7 +264,7 @@ class Dashboard {
 
     setupEventListeners() {
         console.log('Setting up event listeners...');
-        
+
         // Navigation
         const navHome = document.getElementById('nav-home');
         if (navHome) {
@@ -283,7 +283,7 @@ class Dashboard {
         document.addEventListener('touchmove', (e) => {
             const touchY = e.touches[0].clientY;
             const diff = touchY - touchStartY;
-            
+
             if (diff > 100 && window.scrollY === 0) {
                 this.refreshData();
             }
@@ -294,7 +294,7 @@ class Dashboard {
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
         });
-        
+
         const activeNav = document.getElementById(`nav-${navItem}`);
         if (activeNav) {
             activeNav.classList.add('active');
@@ -352,15 +352,16 @@ class Dashboard {
 // Создаем глобальный экземпляр dashboard
 window.dashboard = new Dashboard();
 
-// PWA Service Worker registration
+// 🔥 ИСПРАВЛЕННЫЙ Service Worker Registration
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/static/sw.js')
+        // ✅ ПРАВИЛЬНЫЙ ПУТЬ - /sw.js (без static/)
+        navigator.serviceWorker.register('/sw.js')
             .then(function(registration) {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                console.log('✅ ServiceWorker registration successful with scope: ', registration.scope);
             })
             .catch(function(error) {
-                console.log('ServiceWorker registration failed: ', error);
+                console.log('❌ ServiceWorker registration failed: ', error);
             });
     });
 }
@@ -368,5 +369,83 @@ if ('serviceWorker' in navigator) {
 // Function to open profile (called from HTML)
 window.openProfile = function() {
     console.log('Opening profile...');
-    window.location.href = '/app/profile/';
+    window.location.href = "{% url 'profile' %}";
 };
+
+// PWA Display Mode Detection
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    console.log('🚀 Running in PWA standalone mode');
+    document.body.classList.add('pwa-standalone');
+    
+    // Добавляем специальные стили для PWA режима
+    const style = document.createElement('style');
+    style.textContent = `
+        .pwa-standalone .bottom-nav {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .pwa-standalone header {
+            padding-top: env(safe-area-inset-top);
+        }
+    `;
+    document.head.appendChild(style);
+} else {
+    console.log('🌐 Running in browser mode');
+}
+
+// PWA Install Prompt for Dashboard
+window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('PWA install prompt available on dashboard');
+    e.preventDefault();
+    
+    // Можно показать кастомную кнопку установки в дашборде
+    setTimeout(() => {
+        if (window.deferredPrompt) {
+            showDashboardInstallPrompt();
+        }
+    }, 10000); // Через 10 секунд
+});
+
+function showDashboardInstallPrompt() {
+    if (!window.deferredPrompt) return;
+
+    const installBtn = document.createElement('button');
+    installBtn.innerHTML = '📲 Установить приложение';
+    installBtn.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 16px;
+        border-radius: 25px;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        animation: pulse 2s infinite;
+    `;
+
+    installBtn.onclick = async () => {
+        if (!window.deferredPrompt) return;
+
+        window.deferredPrompt.prompt();
+        const { outcome } = await window.deferredPrompt.userChoice;
+
+        if (outcome === 'accepted') {
+            console.log('User accepted install from dashboard');
+            installBtn.remove();
+        }
+
+        window.deferredPrompt = null;
+    };
+
+    document.body.appendChild(installBtn);
+
+    // Автоматически убираем через 30 секунд
+    setTimeout(() => {
+        if (installBtn.parentNode) {
+            installBtn.remove();
+        }
+    }, 30000);
+}

@@ -8,59 +8,32 @@ import json
 
 def home(request):
     """Главная страница (лендинг)"""
-    # Если пользователь уже авторизован, перенаправляем на дашборд
     if request.user.is_authenticated and request.user.is_paid:
         return redirect('dashboard')
     return render(request, 'home.html')
 
 def pwa_app(request):
-    """PWA приложение - точка входа"""
+    """PWA приложение - страница входа"""
+    print(f"🔐 PWA App - User: {request.user.username if request.user.is_authenticated else 'Anonymous'}")
+    
+    # Если пользователь уже авторизован и оплатил - сразу на дашборд
+    if request.user.is_authenticated and request.user.is_paid:
+        print(f"✅ User already authenticated, redirecting to dashboard")
+        return redirect('dashboard')
+    
     # Проверяем токен из URL параметра
     token = request.GET.get('token')
-    
-    print(f"🔐 PWA App - Token: {token}")
-    print(f"🔐 PWA App - User before auth: {request.user.is_authenticated}")
-    print(f"🔐 PWA App - Session key before: {request.session.session_key}")
-    
     if token:
-        # Пытаемся аутентифицировать пользователя по токену
         user = authenticate(request, token=token)
         if user is not None and user.is_paid:
             login(request, user)
-            
-            # 🔥 КРИТИЧЕСКИ ВАЖНО: принудительно сохраняем и обновляем сессию
             request.session.save()
-            request.session.modified = True
-            
-            print(f"✅ User logged in: {user.username}")
-            print(f"✅ Session key after: {request.session.session_key}")
-            print(f"✅ User is paid: {user.is_paid}")
-            
-            # Перенаправляем на дашборд после успешной аутентификации
-            response = redirect('dashboard')
-            
-            # 🔥 Убедимся, что сессионная кука установлена правильно
-            response.set_cookie(
-                'alfiya_sessionid',
-                request.session.session_key,
-                max_age=30*24*60*60,  # 30 дней
-                httponly=True,
-                samesite='Lax'
-            )
-            
-            return response
+            print(f"✅ User logged in via token, redirecting to dashboard")
+            return redirect('dashboard')
         else:
-            # Если токен невалидный, показываем ошибку
-            print(f"❌ Token authentication failed for token: {token}")
-            return render(request, 'app.html', {'error': 'Неверный токен доступа'})
-    
-    # Если пользователь уже авторизован, перенаправляем на дашборд
-    if request.user.is_authenticated and request.user.is_paid:
-        print(f"✅ User already authenticated: {request.user.username}")
-        return redirect('dashboard')
+            print(f"❌ Token authentication failed")
     
     # Иначе показываем страницу авторизации
-    print("🔐 No token found, showing app page")
     return render(request, 'app.html')
 
 @login_required
@@ -69,12 +42,12 @@ def dashboard(request):
     print(f"🔐 Dashboard - User: {request.user.username}")
     print(f"🔐 Dashboard - Authenticated: {request.user.is_authenticated}")
     print(f"🔐 Dashboard - Is Paid: {request.user.is_paid}")
-    print(f"🔐 Dashboard - Session key: {request.session.session_key}")
     
-    # Дополнительная проверка, что пользователь оплатил доступ
+    # Дополнительная проверка оплаты
     if not request.user.is_paid:
         print(f"❌ Dashboard access denied - user not paid: {request.user.username}")
-        return HttpResponseForbidden("Доступ запрещен. Обратитесь в поддержку.")
+        # Перенаправляем на страницу авторизации вместо 403
+        return redirect('pwa_app')
     
     print(f"✅ Dashboard access granted: {request.user.username}")
     return render(request, 'dashboard.html')
@@ -83,92 +56,81 @@ def dashboard(request):
 def progress_page(request):
     """Страница прогресса - требует авторизации"""
     if not request.user.is_paid:
-        return HttpResponseForbidden("Доступ запрещен. Обратитесь в поддержку.")
-    
+        return redirect('pwa_app')
     return render(request, 'progress.html')
 
 @login_required
 def courses_page(request):
     """Страница курсов - требует авторизации"""
     if not request.user.is_paid:
-        return HttpResponseForbidden("Доступ запрещен. Обратитесь в поддержку.")
-    
+        return redirect('pwa_app')
     return render(request, 'courses.html')
 
 @login_required
 def profile_page(request):
     """Страница профиля - требует авторизации"""
     if not request.user.is_paid:
-        return HttpResponseForbidden("Доступ запрещен. Обратитесь в поддержку.")
-    
+        return redirect('pwa_app')
     return render(request, 'profile.html')
 
 @login_required
 def block_detail_page(request, block_id):
     """Страница деталей блока - требует авторизации"""
     if not request.user.is_paid:
-        return HttpResponseForbidden("Доступ запрещен. Обратитесь в поддержку.")
-    
+        return redirect('pwa_app')
     return render(request, 'block_detail.html')
 
 @login_required
 def lesson_detail_page(request, lesson_id):
     """Страница деталей урока - требует авторизации"""
-    print(f"🔐 Lesson Detail - User: {request.user.username}")
-    print(f"🔐 Lesson Detail - Is Paid: {request.user.is_paid}")
-    print(f"🔐 Lesson Detail - Session: {request.session.session_key}")
-    
     if not request.user.is_paid:
-        return HttpResponseForbidden("Доступ запрещен. Обратитесь в поддержку.")
-    
+        return redirect('pwa_app')
     return render(request, 'lesson_detail.html')
 
-# 🔥 НУЖНЫЙ VIEW ДЛЯ ТЕСТА БЛОКА
 @login_required
 def block_test_page(request, block_id):
     """Страница теста блока - требует авторизации"""
-    print(f"🔐 Block Test Page - User: {request.user.username}, Block: {block_id}")
-    
     if not request.user.is_paid:
-        return HttpResponseForbidden("Доступ запрещен. Обратитесь в поддержку.")
-    
+        return redirect('pwa_app')
     return render(request, 'block_test.html', {'block_id': block_id})
+
+def install_page(request):
+    """Страница установки PWA"""
+    return render(request, 'install.html')
 
 def logout_view(request):
     """Выход из системы"""
-    print(f"🔐 Logout - User: {request.user.username}")
     logout(request)
     return redirect('home')
 
 def token_login(request):
-    """API endpoint для входа по токену (для AJAX запросов)"""
+    """API endpoint для входа по токену"""
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             token = data.get('token')
-            
+
             if not token:
                 return JsonResponse({'success': False, 'error': 'Токен обязателен'})
-            
+
             user = authenticate(request, token=token)
             if user is not None and user.is_paid:
                 login(request, user)
-                # Сохраняем сессию
                 request.session.save()
-                
+
                 return JsonResponse({
-                    'success': True, 
+                    'success': True,
                     'redirect_url': '/dashboard/'
                 })
             else:
                 return JsonResponse({
-                    'success': False, 
+                    'success': False,
                     'error': 'Неверный токен или доступ не оплачен'
                 })
-                
+
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-    
+
     return JsonResponse({'success': False, 'error': 'Метод не разрешен'})
 
 def handler404(request, exception):

@@ -6,11 +6,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ألفية - 1000 слов Корана</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#8B5FBF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ألفية">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#8B5FBF">
+    <meta name="msapplication-tap-highlight" content="no">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="manifest" href="/static/manifest.json">
+    
     {% block extra_css %}{% endblock %}
-    <meta name="theme-color" content="#8B5FBF">
 </head>
 <body>
     <!-- Arabic Letters Background -->
@@ -61,76 +73,94 @@
 
     <script src="/static/js/auth.js"></script>
     <script src="/static/js/dashboard.js"></script>
-    
+
     {% block extra_js %}
     {% endblock %}
 
-    <script>
-        // Навигация для нижнего меню
-        class Navigation {
-            constructor() {
-                this.currentPage = this.getCurrentPage();
-                this.setupNavigation();
-            }
+<script>
+// PWA Install Prompt
+let deferredPrompt;
 
-            getCurrentPage() {
-                const path = window.location.pathname;
-                console.log('Current path:', path);
-                
-                if (path === '/' || path === '/dashboard/') return 'home';
-                if (path.includes('/courses')) return 'courses';
-                if (path.includes('/progress')) return 'progress';
-                if (path.includes('/profile')) return 'profile';
-                return 'home';
-            }
+window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('PWA install prompt available');
+    e.preventDefault();
+    deferredPrompt = e;
 
-            setupNavigation() {
-                // Устанавливаем активный пункт меню
-                this.setActiveNav(this.currentPage);
+    // Показываем кнопку установки через 5 секунд
+    setTimeout(() => {
+        showInstallPrompt();
+    }, 5000);
+});
 
-                // Обработчики кликов для навигации
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        // Позволяем ссылке работать нормально
-                        // Просто обновляем активное состояние
-                        const page = item.id.replace('nav-', '');
-                        this.currentPage = page;
-                        this.setActiveNav(page);
-                        
-                        // Добавляем небольшую задержку для визуальной обратной связи
-                        setTimeout(() => {
-                            // Ссылка сама переведет на страницу
-                        }, 100);
-                    });
-                });
+function showInstallPrompt() {
+    if (!deferredPrompt) return;
 
-                // Обновляем активное меню при загрузке страницы
-                window.addEventListener('load', () => {
-                    this.currentPage = this.getCurrentPage();
-                    this.setActiveNav(this.currentPage);
-                });
-            }
+    // Создаем простую кнопку в правом верхнем углу
+    const installBtn = document.createElement('button');
+    installBtn.innerHTML = '📲 Установить';
+    installBtn.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #8B5FBF;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    `;
 
-            setActiveNav(navItem) {
-                console.log('Setting active nav:', navItem);
-                
-                // Убираем активный класс у всех пунктов
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    item.classList.remove('active');
-                });
+    installBtn.onclick = async () => {
+        if (!deferredPrompt) return;
 
-                // Добавляем активный класс текущему пункту
-                const activeNav = document.getElementById(`nav-${navItem}`);
-                if (activeNav) {
-                    activeNav.classList.add('active');
-                }
-            }
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+
+        if (outcome === 'accepted') {
+            console.log('User accepted install');
+        } else {
+            console.log('User dismissed install');
         }
 
-        // Инициализация навигации при загрузке страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            window.navigation = new Navigation();
-        });
-    </script>
+        deferredPrompt = null;
+        installBtn.remove();
+    };
+
+    document.body.appendChild(installBtn);
+
+    // Автоматически убираем через 30 секунд
+    setTimeout(() => {
+        if (installBtn.parentNode) {
+            installBtn.remove();
+        }
+    }, 30000);
+}
+
+// 🔥 ИСПРАВЛЕННЫЙ Service Worker Registration
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        // ✅ ПРАВИЛЬНЫЙ ПУТЬ - /sw.js
+        navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+                console.log('✅ ServiceWorker registered successfully: ', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('❌ ServiceWorker registration failed: ', error);
+            });
+    });
+}
+
+// PWA Display Mode Detection
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    console.log('🚀 Running in PWA standalone mode');
+    document.body.classList.add('pwa-standalone');
+} else {
+    console.log('🌐 Running in browser mode');
+}
+</script>
+
 </body>
 </html>

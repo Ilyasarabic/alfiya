@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Установить ألفية - 1000 слов Корана</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    <!-- 🔥 ИСПРАВЛЕННЫЕ PWA META ТЕГИ -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#8B5FBF">
+    
+    <!-- Apple Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ألفية">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    
+    <style>
+        .install-container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .install-hero {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 40px 30px;
+            background: var(--gradient-surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .install-icon {
+            font-size: 80px;
+            color: var(--primary);
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .benefit-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px 15px;
+            border-radius: var(--border-radius-small);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .benefit-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .benefit-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .benefit-card:nth-child(1) .benefit-icon { color: var(--primary); }
+        .benefit-card:nth-child(2) .benefit-icon { color: var(--secondary); }
+        .benefit-card:nth-child(3) .benefit-icon { color: var(--accent); }
+        .benefit-card:nth-child(4) .benefit-icon { color: var(--warning); }
+
+        .benefit-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .manual-steps {
+            background: var(--surface-light);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--border-radius-small);
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            color: var(--text-primary);
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+
+        .step-content p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .install-status {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin: 15px 0;
+            text-align: center;
+            min-height: 20px;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: translate3d(0,0,0);
+            }
+            40%, 43% {
+                transform: translate3d(0,-20px,0);
+            }
+            70% {
+                transform: translate3d(0,-10px,0);
+            }
+            90% {
+                transform: translate3d(0,-4px,0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Arabic Letters Background -->
+    <div class="arabic-bg">
+        <div class="arabic-letter letter-1">أ</div>
+        <div class="arabic-letter letter-2">ل</div>
+        <div class="arabic-letter letter-3">ف</div>
+        <div class="arabic-letter letter-4">ي</div>
+        <div class="arabic-letter letter-5">ة</div>
+    </div>
+
+    <div class="install-container">
+        <!-- Header -->
+        <div class="page-header">
+            <a href="/app/" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>Установить приложение</h1>
+        </div>
+
+        <!-- Install Hero Section -->
+        <div class="install-hero">
+            <div class="install-icon">📱</div>
+            <h2 style="font-size: 28px; margin-bottom: 15px; color: var(--text-primary);">
+                ألفية в вашем кармане
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                Установите приложение для быстрого доступа к изучению арабских слов. 
+                Работает офлайн, отправляет уведомления и экономит заряд батареи.
+            </p>
+            
+            <!-- Install Button -->
+            <button id="installButton" class="btn-primary large pulse" style="margin-bottom: 15px; display: none;">
+                <i class="fas fa-download"></i>
+                Установить приложение
+            </button>
+            
+            <div id="installStatus" class="install-status">
+                Проверка поддержки установки...
+            </div>
+            
+            <p style="color: var(--text-muted); font-size: 14px;">
+                Бесплатно • 5 МБ • Для iOS и Android
+            </p>
+        </div>
+
+        <!-- Benefits -->
+        <div class="card">
+            <h3 style="color: var(--text-primary); margin-bottom: 20px; text-align: center;">
+                Преимущества установки
+            </h3>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="benefit-text">Мгновенный запуск</div>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-wifi-slash"></i>
+                    </div>
+                    <div class="benefit-text">Работа офлайн</div>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="benefit-text">Умные напоминания</div>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-battery-three-quarters"></i>
+                    </div>
+                    <div class="benefit-text">Экономия батареи</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Install Instructions -->
+        <div id="manualInstall" class="manual-steps" style="display: none;">
+            <h3 style="color: var(--text-primary); margin-bottom: 20px; text-align: center;">
+                Альтернативные способы установки
+            </h3>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Для Android / Chrome</h4>
+                    <p>Откройте меню браузера (три точки) → "Добавить на главный экран" → "Установить"</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Для iPhone / Safari</h4>
+                    <p>Нажмите кнопку "Поделиться" (📤) → "На экран «Домой»" → "Добавить"</p>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="/app/" class="btn-secondary" style="width: 100%;">
+                    <i class="fas fa-play"></i>
+                    Открыть приложение в браузере
+                </a>
+            </div>
+        </div>
+
+        <!-- Already Installed -->
+        <div id="alreadyInstalled" class="card" style="display: none; text-align: center; padding: 40px 30px;">
+            <div style="color: var(--success); font-size: 64px; margin-bottom: 20px;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 style="color: var(--text-primary); margin-bottom: 10px; font-size: 24px;">
+                Приложение установлено!
+            </h3>
+            <p style="color: var(--text-secondary); margin-bottom: 30px; font-size: 16px;">
+                ألفية уже установлено на вашем устройстве и готово к работе.
+            </p>
+            <a href="/app/" class="btn-primary large">
+                <i class="fas fa-play"></i>
+                Открыть приложение
+            </a>
+        </div>
+
+        <!-- Support Info -->
+        <div class="card" style="text-align: center; margin-top: 30px; background: rgba(139, 95, 191, 0.1);">
+            <h4 style="color: var(--text-primary); margin-bottom: 10px;">Нужна помощь?</h4>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 15px;">
+                Если у вас возникли проблемы с установкой, обратитесь в поддержку
+            </p>
+            <a href="https://t.me/your_support_bot" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                <i class="fab fa-telegram"></i> Telegram поддержка
+            </a>
+        </div>
+    </div>
+
+    <script>
+        class PWAInstaller {
+            constructor() {
+                this.deferredPrompt = null;
+                this.installButton = document.getElementById('installButton');
+                this.installStatus = document.getElementById('installStatus');
+                this.alreadyInstalled = document.getElementById('alreadyInstalled');
+                this.manualInstall = document.getElementById('manualInstall');
+
+                this.init();
+            }
+
+            init() {
+                console.log('🚀 PWA Installer initialized');
+
+                // Check if already installed
+                if (this.isAppInstalled()) {
+                    this.showAlreadyInstalled();
+                    return;
+                }
+
+                this.setupEventListeners();
+                this.setupServiceWorker();
+
+                // Show manual instructions if no prompt after 3 seconds
+                setTimeout(() => {
+                    if (!this.deferredPrompt) {
+                        this.showManualInstructions();
+                    }
+                }, 3000);
+            }
+
+            isAppInstalled() {
+                return window.matchMedia('(display-mode: standalone)').matches ||
+                       window.navigator.standalone === true;
+            }
+
+            setupEventListeners() {
+                // BeforeInstallPrompt event
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    console.log('🎉 PWA install prompt available');
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+
+                    this.showInstallReady();
+                });
+
+                // Install button click
+                this.installButton.addEventListener('click', () => {
+                    this.installApp();
+                });
+
+                // App installed event
+                window.addEventListener('appinstalled', (evt) => {
+                    console.log('🎊 PWA app installed successfully');
+                    this.showAlreadyInstalled();
+                });
+            }
+
+            showInstallReady() {
+                this.installButton.style.display = 'flex';
+                this.installStatus.textContent = 'Готово к установке! Нажмите кнопку выше.';
+                this.installStatus.style.color = 'var(--success)';
+            }
+
+            showManualInstructions() {
+                this.installStatus.textContent = 'Используйте инструкцию ниже для установки';
+                this.installStatus.style.color = 'var(--warning)';
+                this.manualInstall.style.display = 'block';
+            }
+
+            showAlreadyInstalled() {
+                this.installButton.style.display = 'none';
+                this.manualInstall.style.display = 'none';
+                this.alreadyInstalled.style.display = 'block';
+                this.installStatus.textContent = 'Приложение уже установлено на вашем устройстве';
+                this.installStatus.style.color = 'var(--success)';
+            }
+
+            async installApp() {
+                console.log('🔄 Starting PWA installation...');
+
+                if (this.deferredPrompt) {
+                    try {
+                        // Show native install prompt
+                        this.installButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Установка...';
+                        this.installButton.disabled = true;
+
+                        this.deferredPrompt.prompt();
+
+                        const { outcome } = await this.deferredPrompt.userChoice;
+
+                        if (outcome === 'accepted') {
+                            console.log('✅ User accepted PWA installation');
+                            this.installStatus.textContent = 'Установка началась...';
+                        } else {
+                            console.log('❌ User dismissed PWA installation');
+                            this.installStatus.textContent = 'Установка отменена. Используйте инструкцию ниже.';
+                            this.showManualInstructions();
+                            this.resetInstallButton();
+                        }
+
+                        this.deferredPrompt = null;
+
+                    } catch (error) {
+                        console.error('💥 Installation error:', error);
+                        this.installStatus.textContent = 'Ошибка установки. Используйте инструкцию ниже.';
+                        this.showManualInstructions();
+                        this.resetInstallButton();
+                    }
+                } else {
+                    // PWA not supported
+                    console.log('ℹ️ PWA install not supported');
+                    this.showManualInstructions();
+                }
+            }
+
+            resetInstallButton() {
+                this.installButton.innerHTML = '<i class="fas fa-download"></i> Установить приложение';
+                this.installButton.disabled = false;
+            }
+
+            async setupServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    try {
+                        // 🔥 ИСПРАВЛЕННЫЙ ПУТЬ - /sw.js
+                        const registration = await navigator.serviceWorker.register('/sw.js');
+                        console.log('🔧 ServiceWorker registered:', registration.scope);
+                    } catch (error) {
+                        console.log('❌ ServiceWorker registration failed:', error);
+                    }
+                }
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new PWAInstaller();
+        });
+
+        // Periodic check for installation status
+        setInterval(() => {
+            const installer = window.pwaInstaller;
+            if (installer && installer.isAppInstalled() &&
+                installer.alreadyInstalled.style.display === 'none') {
+                installer.showAlreadyInstalled();
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

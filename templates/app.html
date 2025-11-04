@@ -5,136 +5,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ألفية">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#8B5FBF">
+    <meta name="msapplication-TileColor" content="#8B5FBF">
+    <meta name="msapplication-tap-highlight" content="no">
+    <link rel="manifest" href="/manifest.json">  <!-- 🔥 ИСПРАВЛЕН ПУТЬ -->
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+
     <title>ألفية - Авторизация</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
+        .auth-container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
 
+        .auth-card {
+            background: var(--gradient-surface);
+            padding: 40px 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-.auth-container {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 40px 20px;
-}
+        .auth-logo {
+            margin-bottom: 30px;
+        }
 
-.auth-card {
-    background: var(--gradient-surface);
-    padding: 40px 30px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
+        .auth-logo i {
+            font-size: 64px;
+            color: var(--primary);
+            margin-bottom: 16px;
+            display: block;
+        }
 
-.auth-logo {
-    margin-bottom: 30px;
-}
+        .auth-logo h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-.auth-logo i {
-    font-size: 64px;
-    color: var(--primary);
-    margin-bottom: 16px;
-    display: block;
-}
+        .auth-message {
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
 
-.auth-logo h1 {
-    font-size: 32px;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--text-primary), var(--primary-light));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+        .auth-actions {
+            margin-bottom: 30px;
+        }
 
-.auth-message {
-    margin-bottom: 30px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-}
+        .btn-telegram {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: #0088cc;
+            color: white;
+            padding: 16px 24px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 700;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            justify-content: center;
+        }
 
-.auth-actions {
-    margin-bottom: 30px;
-}
+        .btn-telegram:hover {
+            background: #0077b3;
+            transform: translateY(-2px);
+        }
 
-.btn-telegram {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    background: #0088cc;
-    color: white;
-    padding: 16px 24px;
-    border-radius: var(--border-radius);
-    text-decoration: none;
-    font-weight: 700;
-    transition: var(--transition);
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    justify-content: center;
-}
+        .auth-divider {
+            margin: 24px 0;
+            position: relative;
+            text-align: center;
+        }
 
-.btn-telegram:hover {
-    background: #0077b3;
-    transform: translateY(-2px);
-}
+        .auth-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
 
-.auth-divider {
-    margin: 24px 0;
-    position: relative;
-    text-align: center;
-}
+        .auth-divider span {
+            background: var(--surface);
+            padding: 0 16px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
 
-.auth-divider::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.1);
-}
+        .token-form {
+            text-align: left;
+        }
 
-.auth-divider span {
-    background: var(--surface);
-    padding: 0 16px;
-    color: var(--text-muted);
-    font-size: 14px;
-}
+        .token-form label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
 
-.token-form {
-    text-align: left;
-}
+        .token-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius-small);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 16px;
+            margin-bottom: 16px;
+            transition: var(--transition);
+        }
 
-.token-form label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-secondary);
-    font-weight: 600;
-}
+        .token-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
 
-.token-input {
-    width: 100%;
-    padding: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--border-radius-small);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-primary);
-    font-size: 16px;
-    margin-bottom: 16px;
-    transition: var(--transition);
-}
-
-.token-input:focus {
-    outline: none;
-    border-color: var(--primary);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.auth-help {
-    color: var(--text-muted);
-    font-size: 14px;
-    line-height: 1.5;
-}
-        
+        .auth-help {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -153,28 +162,28 @@
                 <i class="fas fa-book-quran"></i>
                 <h1>ألفية</h1>
             </div>
-            
+
             {% if error %}
             <div class="error-message">
                 <i class="fas fa-exclamation-circle"></i>
                 {{ error }}
             </div>
             {% endif %}
-            
+
             <div class="auth-message">
                 <p>Для доступа к приложению необходимо авторизоваться через Telegram бота</p>
             </div>
-            
+
             <div class="auth-actions">
                 <a href="https://t.me/your_bot" class="btn-telegram" target="_blank">
                     <i class="fab fa-telegram"></i>
                     Получить доступ в Telegram
                 </a>
-                
+
                 <div class="auth-divider">
                     <span>или</span>
                 </div>
-                
+
                 <div class="token-form">
                     <label for="token-input">Введите токен доступа:</label>
                     <input type="text" id="token-input" placeholder="Введите ваш токен..." class="token-input">
@@ -185,7 +194,7 @@
                     </button>
                 </div>
             </div>
-            
+
             <div class="auth-help">
                 <p><strong>Токен был отправлен вам в Telegram</strong> после успешной оплаты доступа к курсу.</p>
                 <p>Если вы не получили токен, обратитесь в поддержку.</p>
@@ -193,21 +202,35 @@
         </div>
     </div>
 
+    <!-- 🔥 Service Worker Registration для страницы входа -->
     <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                // ✅ ПРАВИЛЬНЫЙ ПУТЬ - /sw.js
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('✅ ServiceWorker registered on login page: ', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('❌ ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+
         async function verifyToken() {
             const tokenInput = document.getElementById('token-input');
             const tokenError = document.getElementById('token-error');
             const token = tokenInput.value.trim();
-            
+
             // Сброс ошибок
             tokenError.style.display = 'none';
             tokenInput.style.borderColor = '';
-            
+
             if (!token) {
                 showError('Введите токен доступа');
                 return;
             }
-            
+
             try {
                 const response = await fetch('/login/token/', {
                     method: 'POST',
@@ -216,9 +239,9 @@
                     },
                     body: JSON.stringify({ token: token })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     // Успешная авторизация - перенаправляем на дашборд
                     window.location.href = data.redirect_url;
@@ -230,26 +253,26 @@
                 showError('Ошибка соединения с сервером');
             }
         }
-        
+
         function showError(message) {
             const tokenError = document.getElementById('token-error');
             const tokenInput = document.getElementById('token-input');
-            
+
             tokenError.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
             tokenError.style.display = 'block';
             tokenInput.style.borderColor = 'var(--error)';
             tokenInput.focus();
         }
-        
+
         // Автоматическая проверка токена из URL
         const urlParams = new URLSearchParams(window.location.search);
         const tokenFromUrl = urlParams.get('token');
-        
+
         if (tokenFromUrl) {
             document.getElementById('token-input').value = tokenFromUrl;
             verifyToken();
         }
-        
+
         // Enter для отправки формы
         document.getElementById('token-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {

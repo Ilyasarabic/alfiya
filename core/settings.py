@@ -12,19 +12,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 environ.Env.read_env(BASE_DIR / '.env')
 
-# ========== ОСНОВНЫЕ НАСТРОЙКИ ==========
 SECRET_KEY = env('SECRET_KEY')
-DEBUG = False  # ВСЕГДА False В ПРОДАКШЕНЕ
+DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = [
-    '85.193.82.13',
-    'ilyasarabic.ru',
-    'www.ilyasarabic.ru',
-    'localhost',
-    '127.0.0.1'
-]
+# Разрешаем все хосты в режиме разработки
+if DEBUG:
+    ALLOWED_HOSTS = ['*']  # Разрешаем все хосты для разработки
+else:
+    ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
-# ========== ПРИЛОЖЕНИЯ И МИДЛВАРЫ ==========
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -74,7 +70,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# ========== БАЗА ДАННЫХ ==========
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -86,7 +81,6 @@ DATABASES = {
     }
 }
 
-# ========== ВАЛИДАЦИЯ ПАРОЛЕЙ ==========
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -102,13 +96,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# ========== ЯЗЫК И ВРЕМЯ ==========
 LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
-# ========== СТАТИЧЕСКИЕ ФАЙЛЫ ==========
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
@@ -118,52 +110,57 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ========== АУТЕНТИФИКАЦИЯ И ПОЛЬЗОВАТЕЛИ ==========
+# ========== НАСТРОЙКИ СЕССИИ И АУТЕНТИФИКАЦИИ ==========
+
+# Система аутентификации
 AUTH_USER_MODEL = 'users.User'
 
+# Бэкенды аутентификации
 AUTHENTICATION_BACKENDS = [
-    'users.backends.TokenBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    'users.backends.TokenBackend',  # наш кастомный бэкенд
+    'django.contrib.auth.backends.ModelBackend',  # стандартный (для админки)
 ]
 
-# ========== БЕЗОПАСНОСТЬ И COOKIES ==========
+# 🔥 КРИТИЧЕСКИ ВАЖНЫЕ НАСТРОЙКИ СЕССИИ ДЛЯ PWA
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 30 * 24 * 60 * 60
+SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 дней
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_NAME = 'alfiya_sessionid'
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'  # Разрешаем отправку cookies
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = True  # True для продакшена
-SESSION_COOKIE_DOMAIN = None
+SESSION_COOKIE_SECURE = False  # В разработке = False
 
+# Настройки CSRF
 CSRF_COOKIE_NAME = "alfiya_csrftoken"
 CSRF_HEADER_NAME = "HTTP_X_CSRFTOKEN"
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_SECURE = True  # True для продакшена
-CSRF_COOKIE_DOMAIN = None
-
+CSRF_COOKIE_SECURE = False  # В разработке = False
 CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://0.0.0.0:8000",
     "http://85.193.82.13",
-    "https://85.193.82.13",
     "https://ilyasarabic.ru",
     "https://www.ilyasarabic.ru",
-    "https://jakobe-undefensible-howard.ngrok-free.dev",
-    "https://*.ngrok-free.dev",
+    "http://ilyasarabic.ru",
 ]
 
-# ========== CORS НАСТРОЙКИ ==========
-CORS_ALLOW_ALL_ORIGINS = False  # False для продакшена
-CORS_ALLOW_CREDENTIALS = True
+# 🔥 КРИТИЧЕСКИ ВАЖНЫЕ НАСТРОЙКИ CORS ДЛЯ PWA
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOW_CREDENTIALS = True  # РАЗРЕШАЕМ ПЕРЕДАЧУ COOKIES
 
 CORS_ALLOWED_ORIGINS = [
-    "http://85.193.82.13",
-    "https://85.193.82.13",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000", 
+    "http://0.0.0.0:8000",
     "https://ilyasarabic.ru",
     "https://www.ilyasarabic.ru",
-    "https://jakobe-undefensible-howard.ngrok-free.dev",
+    "http://ilyasarabic.ru",
+    "http://85.193.82.13",
+    "https://85.193.82.13",
 ]
 
 CORS_ALLOW_METHODS = [
@@ -187,10 +184,24 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# ========== REST FRAMEWORK ==========
+# Настройки безопасности для cookies в разработке
+if DEBUG:
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_DOMAIN = None
+    CSRF_COOKIE_DOMAIN = None
+else:
+    # Продакшн настройки
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = False
+
+# ========== REST FRAMEWORK НАСТРОЙКИ ==========
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.SessionAuthentication',  # Основной метод
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
@@ -198,6 +209,7 @@ REST_FRAMEWORK = {
     ],
 }
 
+# JWT Settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=365),
@@ -217,38 +229,40 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id',
 }
 
-# ========== ПЛАТЕЖИ ==========
+# ========== ПЛАТЕЖИ И БЕЗОПАСНОСТЬ ==========
+
 PAYMENT_SHARED_SECRET = env('PAYMENT_SHARED_SECRET')
-PRODAMUS_SECRET_KEY = env('PRODAMUS_SECRET_KEY')
 
-# ========== БЕЗОПАСНОСТЬ ПРОДАКШЕН ==========
-SECURE_SSL_REDIRECT = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_HSTS_SECONDS = 31536000
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+# Security settings for production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    
+    # Logging
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'file': {
+                'level': 'ERROR',
+                'class': 'logging.FileHandler',
+                'filename': BASE_DIR / 'django_errors.log',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['file'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+        },
+    }
 
-# ========== ЛОГИРОВАНИЕ ==========
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'django_errors.log',
-        },
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file', 'console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-    },
-}
+# Для отладки сессий
+if DEBUG:
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
